@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.zhangbin.convention</groupId>
+    <artifactId>zhangbin-convention</artifactId>
+    <packaging>pom</packaging>
+    <version>0.0.1-SNAPSHOT</version>
+    <modules>
+        <module>zhangbin-convention-api</module>
+        <module>zhangbin-convention-service</module>
+        <module>zhangbin-convention-web</module>
+    </modules>
+	
+	<properties>
+        <maven.test.skip>true</maven.test.skip>
+        <maven.build.timestamp.format>yyyy-MM-dd hh:mm:ss.SSSZ</maven.build.timestamp.format>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- 项目编码 -->
+        <project.ud.encoding>UTF-8</project.ud.encoding>
+        <!-- 项目JDK版本 -->
+        <project.ud.jdk>1.8</project.ud.jdk>
+    </properties>
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.zhangbin.convention</groupId>
+                <artifactId>zhangbin-convention-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zhangbin.convention</groupId>
+                <artifactId>zhangbin-convention-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zhangbin.convention</groupId>
+                <artifactId>zhangbin-convention-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+	
+	<distributionManagement>
+        <repository>
+            <id>maven-releases</id>
+            <name>Nexus Release Repository</name>
+            <url>http://106.15.187.68:9276/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>maven-snapshots</id>
+            <name>Nexus Snapshot Repository</name>
+            <url>http://106.15.187.68:9276/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+   
+</project>
