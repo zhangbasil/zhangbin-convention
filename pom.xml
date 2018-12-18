@@ -3,25 +3,29 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.1.RELEASE</version>
+    </parent>
+
     <groupId>com.zhangbin.convention</groupId>
     <artifactId>zhangbin-convention</artifactId>
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
+
     <modules>
         <module>zhangbin-convention-api</module>
         <module>zhangbin-convention-service</module>
         <module>zhangbin-convention-web</module>
+        <module>zhangbin-convention-lock</module>
     </modules>
 	
 	<properties>
         <maven.test.skip>true</maven.test.skip>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm:ss.SSSZ</maven.build.timestamp.format>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- 项目编码 -->
         <project.ud.encoding>UTF-8</project.ud.encoding>
-        <!-- 项目JDK版本 -->
-        <project.ud.jdk>1.8</project.ud.jdk>
     </properties>
 
 
@@ -42,8 +46,60 @@
                 <artifactId>zhangbin-convention-web</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aspects</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${spring.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>${jedis.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <!-- 发布源码到 Nexus 私服 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 	
 	<distributionManagement>
         <repository>
@@ -57,5 +113,5 @@
             <url>http://106.15.187.68:9276/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
-   
+
 </project>
