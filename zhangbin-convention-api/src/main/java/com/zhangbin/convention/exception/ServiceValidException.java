@@ -1,7 +1,7 @@
 package com.zhangbin.convention.exception;
 
 import com.zhangbin.convention.code.CommonCode;
-import com.zhangbin.convention.domain.Result;
+import com.zhangbin.convention.result.Result;
 
 import java.util.List;
 

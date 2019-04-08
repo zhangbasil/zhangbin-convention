@@ -1,7 +1,7 @@
 package com.zhangbin.convention.internal.util;
 
-import com.zhangbin.convention.domain.Result;
-import com.zhangbin.convention.domain.Results;
+import com.zhangbin.convention.result.Result;
+import com.zhangbin.convention.result.Results;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.util.CollectionUtils;
 
@@ -33,12 +33,35 @@ public class ValidationUtils {
         return constraintViolations.stream().map(constraintViolation -> {
             String fieldName = getFieldName(parameterNameDiscoverer, method, constraintViolation);
             return Results.buildViolationItem(fieldName, constraintViolation.getMessage());
-
         }).collect(Collectors.toList());
     }
 
+
+    public static String convertToOutMessage(Set<? extends ConstraintViolation<?>> constraintViolations,
+                                             ParameterNameDiscoverer parameterNameDiscoverer, Method method) {
+        StringBuilder outMessage = new StringBuilder();
+        outMessage.append("`");
+        if (CollectionUtils.isEmpty(constraintViolations)) {
+            return outMessage.append("}").toString();
+        }
+        constraintViolations.forEach(constraintViolation -> {
+            String fieldName = getFieldName(parameterNameDiscoverer, method, constraintViolation);
+            String message = constraintViolation.getMessage();
+            Object invalidValue = constraintViolation.getInvalidValue();
+            outMessage.append(fieldName)
+                    .append("(")
+                    .append(Objects.nonNull(invalidValue) ? invalidValue.toString() : null)
+                    .append(")")
+                    .append(":")
+                    .append(message)
+                    .append(", ");
+        });
+        return outMessage.deleteCharAt(outMessage.length() - 2).append("`").toString();
+    }
+
+
     private static String getFieldName(ParameterNameDiscoverer parameterNameDiscoverer, Method method,
-            ConstraintViolation constraintViolation) {
+                                       ConstraintViolation constraintViolation) {
         String fieldName = "";
         for (Path.Node node : constraintViolation.getPropertyPath()) {
             if (node.getKind() == ElementKind.PARAMETER) {
@@ -53,7 +76,7 @@ public class ValidationUtils {
     }
 
     private static String getParameterName(Path.Node node, Method method,
-            ParameterNameDiscoverer parameterNameDiscoverer) {
+                                           ParameterNameDiscoverer parameterNameDiscoverer) {
         if (Objects.isNull(parameterNameDiscoverer) || Objects.isNull(method)) {
             return node.getName();
         } else {

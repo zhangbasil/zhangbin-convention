@@ -3,7 +3,7 @@ package com.zhangbin.convention.code;
 /**
  * @author zhangbin
  * @Type CommonCode
- * @Desc
+ * @Desc 公共错误码
  * @date 2018-10-21
  * @Version V1.0
  */

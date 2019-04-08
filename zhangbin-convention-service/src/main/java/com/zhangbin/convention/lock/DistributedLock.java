@@ -17,8 +17,7 @@ import java.util.function.Supplier;
 public interface DistributedLock {
 
     /**
-     * 尝试获取锁
-     * 获取锁失败默认重试5次后抛出异常
+     * 尝试获取锁 获取锁失败默认重试5次后抛出异常
      *
      * @param lockKey 分布式锁key
      * @return
