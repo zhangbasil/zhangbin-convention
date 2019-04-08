@@ -10,7 +10,7 @@
         <version>0.0.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zhangbin-convention-commons</artifactId>
+    <artifactId>zhangbin-convention-common</artifactId>
 
     <dependencies>
         <dependency>
