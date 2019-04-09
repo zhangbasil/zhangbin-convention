@@ -22,7 +22,6 @@
     </modules>
 	
 	<properties>
-        <java.version>12</java.version>
         <maven.test.skip>true</maven.test.skip>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm:ss.SSSZ</maven.build.timestamp.format>
         <!-- 项目编码 -->

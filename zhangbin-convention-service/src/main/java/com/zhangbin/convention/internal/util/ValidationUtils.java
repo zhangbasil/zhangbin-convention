@@ -36,30 +36,6 @@ public class ValidationUtils {
         }).collect(Collectors.toList());
     }
 
-
-    public static String convertToOutMessage(Set<? extends ConstraintViolation<?>> constraintViolations,
-                                             ParameterNameDiscoverer parameterNameDiscoverer, Method method) {
-        StringBuilder outMessage = new StringBuilder();
-        outMessage.append("`");
-        if (CollectionUtils.isEmpty(constraintViolations)) {
-            return outMessage.append("}").toString();
-        }
-        constraintViolations.forEach(constraintViolation -> {
-            String fieldName = getFieldName(parameterNameDiscoverer, method, constraintViolation);
-            String message = constraintViolation.getMessage();
-            Object invalidValue = constraintViolation.getInvalidValue();
-            outMessage.append(fieldName)
-                    .append("(")
-                    .append(Objects.nonNull(invalidValue) ? invalidValue.toString() : null)
-                    .append(")")
-                    .append(":")
-                    .append(message)
-                    .append(", ");
-        });
-        return outMessage.deleteCharAt(outMessage.length() - 2).append("`").toString();
-    }
-
-
     private static String getFieldName(ParameterNameDiscoverer parameterNameDiscoverer, Method method,
                                        ConstraintViolation constraintViolation) {
         String fieldName = "";

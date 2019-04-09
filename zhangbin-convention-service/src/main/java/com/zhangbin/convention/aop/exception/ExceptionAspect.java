@@ -2,12 +2,12 @@ package com.zhangbin.convention.aop.exception;
 
 import com.zhangbin.convention.code.CommonCode;
 import com.zhangbin.convention.code.ErrorCode;
-import com.zhangbin.convention.result.Result;
-import com.zhangbin.convention.result.Results;
 import com.zhangbin.convention.exception.ServiceErrorException;
 import com.zhangbin.convention.exception.ServiceException;
 import com.zhangbin.convention.exception.ServiceValidException;
 import com.zhangbin.convention.internal.util.ValidationUtils;
+import com.zhangbin.convention.result.Result;
+import com.zhangbin.convention.result.Results;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -22,11 +22,9 @@ import org.springframework.util.CollectionUtils;
 
 import javax.validation.ConstraintViolationException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author zhangbin
@@ -52,7 +50,11 @@ public class ExceptionAspect {
     private ExceptionAlarmHandler exceptionAlarmHandler;
 
     /**
+     *
      * 所有返回值为Result的子类的方法
+     *
+     * 排除 com.zhangbin.convention.aop.exception.ExternalExceptionHandler
+     *
      */
     @Pointcut("execution(com.zhangbin.convention.result.Result + *..*.*(..)) && " +
             "!execution(* com.zhangbin.convention.aop.exception.ExternalExceptionHandler.*(..))")
@@ -74,8 +76,6 @@ public class ExceptionAspect {
             }
             return returnValue;
         } catch (ConstraintViolationException violationException) {
-            LOGGER.info("method:" + buildOperationName(method) + " " + ValidationUtils.convertToOutMessage(
-                    violationException.getConstraintViolations(), parameterNameDiscoverer, method));
             List<Result.ViolationItem> violationItems = ValidationUtils.convertToResultViolationItems(
                     violationException.getConstraintViolations(), parameterNameDiscoverer, method);
             if (isResultClass) {
@@ -86,9 +86,6 @@ public class ExceptionAspect {
                     .setMessage(CommonCode.INVALID_ARGS.message())
                     .setViolationItems(violationItems);
         } catch (ServiceValidException validException) {
-            LOGGER.info("method:" + buildOperationName(method) + " " + validException.getDetailMessage());
-
-            buildMethodParams(args, method);
             if (isResultClass) {
                 if (!CollectionUtils.isEmpty(validException.getViolationItems())) {
                     return Results.invalid(validException.getMessage(), validException.getViolationItems());
@@ -101,7 +98,6 @@ public class ExceptionAspect {
                     .setMessage(CommonCode.INVALID_ARGS.message())
                     .setViolationItems(validException.getViolationItems());
         } catch (ServiceException serviceException) {
-            LOGGER.info("method:" + buildOperationName(method) + " " + serviceException.getDetailMessage());
             if (isResultClass) {
                 return Results.failure(serviceException);
             }
@@ -116,17 +112,29 @@ public class ExceptionAspect {
             return getResultValue(method, errorException)
                     .setCode(errorException.getCode())
                     .setMessage(errorException.getMessage());
-        } catch (Throwable throwable) {
+        } catch (Throwable throwable) {// 未知系统异常
             LOGGER.error(throwable.getMessage(), throwable);
-            // 先行执行自定义异常增强
-            Optional<Result> handleResult = this.handleExternalException(throwable, method, args);
-            if (handleResult.isPresent()) {
-                return handleResult.get();
+            // 未知系统异常报警通知（邮件和短信通知）异步
+            if (Objects.nonNull(exceptionAlarmHandler)) {
+                try {
+                    CompletableFuture.runAsync(() -> exceptionAlarmHandler.notice(throwable, method, args));
+                } catch (Throwable t) {
+                    LOGGER.error("未知系统异常->发送报警通知异常：" + t.getMessage(), t);
+                }
             }
 
-            // 未知系统异常报警通知（邮件和短信通知）
-            exceptionAlarmHandler.notice(throwable, method, args);
-
+            // 除约定以外的其他扩展异常
+            if (Objects.nonNull(externalExceptionHandler)) {
+                try {
+                    Result handle = externalExceptionHandler.handle(throwable, method, args);
+                    if (Objects.nonNull(handle)) {
+                        return handle;
+                    }
+                } catch (Throwable t) {
+                    LOGGER.error("未知系统异常->除约定以外的其他扩展异常：" + t.getMessage(), t);
+                }
+            }
+            // 默认未知系统异常处理
             if (isResultClass) {
                 return Results.error();
             }
@@ -137,22 +145,9 @@ public class ExceptionAspect {
 
     }
 
-    private Optional<Result> handleExternalException(Throwable t, Method method, Object[] args) {
-        if (Objects.isNull(externalExceptionHandler)) {
-            return Optional.empty();
-        }
-        Result result = null;
-        try {
-            result = externalExceptionHandler.handle(t, method, args);
-        } catch (Throwable throwable) {
-            LOGGER.error("Return result exception advice occurrence of user exception", throwable);
-        }
-        return Optional.ofNullable(result);
-    }
-
     private Result getResultValue(Method method, Throwable throwable) throws Throwable {
         try {
-            return (Result) method.getReturnType().newInstance();
+            return (Result) method.getReturnType().getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             LOGGER.error("method:" + buildOperationName(method) + " " + e.getMessage(), e);
             throw throwable;
@@ -175,14 +170,4 @@ public class ExceptionAspect {
         return sb.substring(0, sb.length() - 1);
     }
 
-    private Map<String, ?> buildMethodParams(Object[] args, Method method) {
-        Map<String, Object> objectMap = new HashMap<>();
-        String[] parameterNames = parameterNameDiscoverer.getParameterNames(method);
-        if (Objects.nonNull(parameterNames) && parameterNames.length > 0) {
-            for (int i = 0; i < parameterNames.length; i++) {
-                objectMap.put(parameterNames[i], args[i]);
-            }
-        }
-        return objectMap;
-    }
 }
