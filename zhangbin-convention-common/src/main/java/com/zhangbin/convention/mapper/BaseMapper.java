@@ -4,6 +4,7 @@ import com.zhangbin.convention.page.Page;
 import com.zhangbin.convention.page.PageQuery;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author zhangbin
@@ -16,13 +17,13 @@ public interface BaseMapper {
 
     <T> void insert(T domain);
 
-    <T> T insertReturn(T domain);
+    <T> Optional<T> insertReturn(T domain);
 
     <T> int update(T domain);
 
-    <T> T getById(Long id);
+    <T> Optional<T> getById(Long id);
 
-    <T> T getOneByCondition(T domain);
+    <T> Optional<T> getOneByCondition(T domain);
 
     <T> List<T> listByCondition(T domain);
 
