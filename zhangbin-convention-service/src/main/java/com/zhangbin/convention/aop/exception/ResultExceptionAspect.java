@@ -28,14 +28,14 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * @author zhangbin
- * @Type ExceptionAspect
- * @Desc 异常处理
+ * @Type ResultExceptionAspect
+ * @Desc 对Result返回异常统一处理
  * @date 2018-10-21
  * @Version V1.0
  */
 @Aspect
-public class ExceptionAspect {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionAspect.class);
+public class ResultExceptionAspect {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResultExceptionAspect.class);
 
     private static final String EMPTY = "";
     private static final String SPLITTER = ",";
