@@ -14,6 +14,7 @@ public class ServiceErrorException extends RuntimeException {
     private String code;
 
     public ServiceErrorException() {
+        this(ErrorCode.UNKNOWN_ERROR);
     }
 
     public ServiceErrorException(String code, String message) {

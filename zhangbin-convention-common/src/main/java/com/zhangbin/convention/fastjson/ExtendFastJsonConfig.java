@@ -17,8 +17,6 @@ public class ExtendFastJsonConfig extends FastJsonConfig {
         setSerializerFeatures(
                 // 消除对同一对象重复引用的优化
                 SerializerFeature.DisableCircularReferenceDetect,
-                // TODO: 序列化的时候会导致OOM。
-                SerializerFeature.BrowserCompatible,
                 // 不隐藏为空的字段
                 SerializerFeature.IgnoreNonFieldGetter,
                 // map为Null，置为{}
