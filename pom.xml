@@ -28,7 +28,7 @@
         <project.ud.encoding>UTF-8</project.ud.encoding>
         <v.spring-data-redis>2.1.3.RELEASE</v.spring-data-redis>
         <v.curator>4.0.1</v.curator>
-        <v.fastjson>1.2.54</v.fastjson>
+        <v.fastjson>1.2.83</v.fastjson>
     </properties>
 
 
